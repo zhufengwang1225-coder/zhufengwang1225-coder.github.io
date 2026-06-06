@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知识网络 × AI 代理：用 Obsidian + Claude 构建可生长的第二大脑 · 王珠峰</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e14;--bg2:#111420;--bg3:#161a28;
+  --border:#1e2436;--border2:#252d42;
+  --text:#eef0f6;--muted:#7a8299;--faint:#3a4055;
+  --blue:#4d90f0;--green:#3ecf8e;--amber:#f0a940;--purple:#a78bfa;--red:#f87171;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans SC',sans-serif;font-weight:300;line-height:1.7;}
+a{text-decoration:none;color:inherit;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(12,14,20,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.nav-inner{max-width:800px;margin:0 auto;padding:0 2rem;height:52px;display:flex;align-items:center;justify-content:space-between;}
+.back-link{display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:0.72rem;letter-spacing:0.06em;color:var(--muted);transition:color 0.2s;}
+.back-link:hover{color:var(--purple);}
+.back-link::before{content:'←';}
+.nav-meta{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--faint);}
+
+/* COVER */
+.cover{
+  position:relative;overflow:hidden;
+  border-bottom:1px solid var(--border);
+}
+.cover-graph{
+  width:100%;height:320px;object-fit:cover;object-position:center;
+  opacity:0.35;display:block;filter:saturate(1.2);
+}
+.cover-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom, rgba(12,14,20,0.3) 0%, rgba(12,14,20,0.85) 100%);
+  display:flex;align-items:flex-end;
+  padding:2.5rem;max-width:800px;margin:0 auto;
+}
+.cover-overlay-inner{width:100%;}
+.cover-kicker{
+  font-family:'IBM Plex Mono',monospace;font-size:0.68rem;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--purple);margin-bottom:0.8rem;
+}
+.cover-title{
+  font-family:'Noto Serif SC',serif;
+  font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:900;
+  line-height:1.2;color:var(--text);margin-bottom:0.6rem;
+}
+.cover-subtitle{font-size:0.92rem;color:rgba(238,240,246,0.65);font-weight:300;}
+
+/* ARTICLE */
+.article{max-width:800px;margin:0 auto;padding:3rem 2rem 6rem;}
+
+/* META BAR */
+.meta-bar{
+  display:flex;flex-wrap:wrap;gap:1.2rem;
+  padding:1.2rem 0 1.8rem;
+  border-bottom:1px solid var(--border);
+  margin-bottom:2.5rem;
+}
+.meta-pill{
+  font-family:'IBM Plex Mono',monospace;font-size:0.65rem;
+  color:var(--faint);display:flex;align-items:center;gap:5px;
+}
+.meta-pill span{color:var(--muted);}
+
+/* TOC */
+.toc{
+  background:var(--bg2);border:1px solid var(--border);
+  border-left:3px solid var(--purple);
+  border-radius:8px;padding:1.4rem 1.6rem 1.2rem;margin-bottom:3rem;
+}
+.toc-head{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--faint);margin-bottom:0.9rem;}
+.toc ol{list-style:none;display:flex;flex-direction:column;gap:0.2rem;counter-reset:toc;}
+.toc ol li{counter-increment:toc;display:flex;align-items:baseline;gap:0.5rem;}
+.toc ol li::before{
+  content:counter(toc,decimal-leading-zero);
+  font-family:'IBM Plex Mono',monospace;font-size:0.6rem;
+  color:var(--faint);flex-shrink:0;min-width:1.6rem;
+}
+.toc a{font-size:0.86rem;color:var(--muted);transition:color 0.2s;}
+.toc a:hover{color:var(--purple);}
+
+/* PROSE */
+h2.s-title{
+  font-family:'Noto Serif SC',serif;font-size:1.5rem;font-weight:700;
+  color:var(--text);margin:3rem 0 1rem;padding-top:0.5rem;
+  display:flex;align-items:center;gap:0.6rem;
+}
+h2.s-title::before{
+  content:'';display:inline-block;width:3px;height:1.2em;
+  background:var(--purple);border-radius:2px;flex-shrink:0;
+}
+h3.ss-title{font-size:1rem;font-weight:500;color:var(--text);margin:1.8rem 0 0.6rem;}
+p.prose{font-size:0.92rem;color:var(--muted);line-height:1.9;margin-bottom:1.1rem;font-weight:300;}
+p.prose strong{color:var(--text);font-weight:500;}
+p.prose em{color:var(--purple);font-style:normal;font-weight:400;}
+p.prose code{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;color:var(--green);}
+
+/* ABSTRACT */
+.abstract{
+  background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.15);
+  border-radius:8px;padding:1.5rem 1.8rem;margin-bottom:2.5rem;
+}
+.abstract-head{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--purple);margin-bottom:0.7rem;}
+.abstract p{font-size:0.88rem;color:var(--muted);line-height:1.85;font-weight:300;}
+.abstract p strong{color:var(--text);font-weight:500;}
+.kw-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:0.9rem;}
+.kw{font-family:'IBM Plex Mono',monospace;font-size:0.62rem;padding:2px 8px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);color:var(--purple);border-radius:3px;}
+
+/* CALLOUT */
+.callout{border-radius:7px;padding:1.1rem 1.4rem;margin:1.5rem 0;}
+.callout-purple{background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.18);border-left:3px solid var(--purple);}
+.callout-green{background:rgba(62,207,142,0.07);border:1px solid rgba(62,207,142,0.18);border-left:3px solid var(--green);}
+.callout-amber{background:rgba(240,169,64,0.07);border:1px solid rgba(240,169,64,0.18);border-left:3px solid var(--amber);}
+.callout-head{font-family:'IBM Plex Mono',monospace;font-size:0.63rem;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.45rem;}
+.ch-p{color:var(--purple);}
+.ch-g{color:var(--green);}
+.ch-a{color:var(--amber);}
+.callout p{font-size:0.86rem;color:var(--muted);line-height:1.75;font-weight:300;}
+.callout p strong{color:var(--text);font-weight:500;}
+.callout p code{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px;color:var(--green);}
+
+/* CODE BLOCK */
+.codeblock{background:#070a0f;border:1px solid var(--border);border-radius:8px;margin:1.4rem 0;overflow:hidden;}
+.cb-head{background:var(--bg3);border-bottom:1px solid var(--border);padding:7px 14px;display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:var(--faint);letter-spacing:0.08em;}
+.cb-dot{width:8px;height:8px;border-radius:50%;background:var(--green);}
+.cb-pre{padding:1.1rem 1.4rem;font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:#94a3b8;line-height:1.75;white-space:pre-wrap;overflow-x:auto;}
+.cb-pre .h{color:var(--amber);}
+.cb-pre .k{color:var(--purple);}
+.cb-pre .s{color:var(--green);}
+.cb-pre .c{color:var(--faint);}
+.cb-pre .l{color:var(--blue);}
+.cb-pre .b{color:var(--text);font-weight:500;}
+
+/* FIGURE */
+.fig{margin:2rem 0;}
+.fig-img-wrap{
+  border-radius:10px;overflow:hidden;
+  border:1px solid rgba(167,139,250,0.15);
+  background:#000;position:relative;
+}
+.fig-img-wrap img{width:100%;display:block;opacity:0.88;}
+.fig-caption{
+  font-family:'IBM Plex Mono',monospace;font-size:0.68rem;
+  color:var(--faint);text-align:center;margin-top:0.6rem;
+  letter-spacing:0.04em;
+}
+.fig-caption strong{color:var(--muted);}
+
+.fig-duo{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:2rem 0;}
+.fig-duo-card{border-radius:8px;overflow:hidden;border:1px solid rgba(167,139,250,0.12);background:#000;position:relative;}
+.fig-duo-card img{width:100%;display:block;opacity:0.85;}
+.fig-duo-label{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);
+  padding:1.5rem 0.8rem 0.6rem;
+  font-family:'IBM Plex Mono',monospace;font-size:0.64rem;color:rgba(255,255,255,0.6);
+}
+.fig-duo-label strong{color:var(--purple);display:block;font-size:0.7rem;margin-bottom:1px;}
+
+/* VAULT TREE */
+.vault-tree{background:#070a0f;border:1px solid var(--border);border-radius:8px;padding:1.1rem 1.4rem;margin:1.4rem 0;font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:#94a3b8;line-height:2;}
+.vt-f{color:var(--amber);}
+.vt-m{color:var(--purple);}
+.vt-c{color:var(--faint);font-size:0.7rem;}
+.vt-n{color:var(--muted);padding-left:1.2rem;}
+
+/* TABLE */
+.art-table{width:100%;border-collapse:collapse;margin:1.4rem 0;font-size:0.85rem;}
+.art-table th{font-family:'IBM Plex Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint);padding:0.6rem 0.9rem;border-bottom:1px solid var(--border);text-align:left;font-weight:500;}
+.art-table td{padding:0.7rem 0.9rem;border-bottom:1px solid rgba(30,36,54,0.6);color:var(--muted);vertical-align:top;}
+.art-table tr:last-child td{border-bottom:none;}
+.art-table td strong{color:var(--text);font-weight:500;}
+
+/* FLOW */
+.flow{display:flex;flex-direction:column;gap:0;margin:1.5rem 0;}
+.flow-step{display:flex;gap:0;align-items:stretch;}
+.fs-left{display:flex;flex-direction:column;align-items:center;width:34px;flex-shrink:0;}
+.fs-circle{width:34px;height:34px;border-radius:50%;background:rgba(167,139,250,0.12);border:2px solid rgba(167,139,250,0.35);display:flex;align-items:center;justify-content:center;font-size:0.95rem;flex-shrink:0;}
+.fs-line{flex:1;width:2px;background:var(--border);margin:2px 0;}
+.flow-step:last-child .fs-line{display:none;}
+.fs-body{padding:0 0 1.4rem 1rem;flex:1;}
+.fs-name{font-size:0.92rem;font-weight:500;color:var(--text);margin-bottom:0.3rem;margin-top:5px;}
+.fs-desc{font-size:0.82rem;color:var(--muted);line-height:1.65;font-weight:300;}
+.fs-desc strong{color:var(--text);font-weight:500;}
+.fs-tag{font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:var(--green);margin-top:0.3rem;}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:1.5rem 0;}
+.metric{background:var(--bg2);padding:1.1rem 1.2rem;text-align:center;}
+.metric-n{font-family:'Noto Serif SC',serif;font-size:1.7rem;font-weight:900;color:var(--purple);line-height:1;margin-bottom:0.3rem;}
+.metric-l{font-size:0.72rem;color:var(--muted);font-weight:300;}
+
+/* PROBLEM-SOLUTION */
+.ps-list{display:flex;flex-direction:column;gap:0.7rem;margin:1.4rem 0;}
+.ps-item{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:1.1rem 1.3rem;}
+.ps-q{font-size:0.86rem;color:var(--muted);margin-bottom:0.55rem;display:flex;gap:0.6rem;}
+.ps-q::before{content:'Q';font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--amber);background:rgba(240,169,64,0.1);border:1px solid rgba(240,169,64,0.25);padding:1px 5px;border-radius:2px;flex-shrink:0;margin-top:2px;}
+.ps-a{font-size:0.86rem;color:var(--muted);display:flex;gap:0.6rem;padding-top:0.55rem;border-top:1px solid var(--border);}
+.ps-a::before{content:'A';font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--green);background:rgba(62,207,142,0.1);border:1px solid rgba(62,207,142,0.25);padding:1px 5px;border-radius:2px;flex-shrink:0;margin-top:2px;}
+.ps-a strong{color:var(--text);font-weight:500;}
+
+/* DIVIDER */
+hr{border:none;border-top:1px solid var(--border);margin:2.5rem 0;}
+
+/* REFERENCES */
+.refs{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.4rem 1.6rem;margin-top:2.5rem;}
+.refs-head{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--faint);margin-bottom:0.9rem;}
+.ref-item{font-size:0.8rem;color:var(--muted);padding:0.5rem 0;border-bottom:1px solid rgba(30,36,54,0.5);line-height:1.6;font-weight:300;}
+.ref-item:last-child{border-bottom:none;}
+.ref-item em{color:var(--purple);font-style:italic;}
+
+/* FOOTER */
+.art-footer{padding-top:2rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-top:3rem;}
+.af-author{font-size:0.84rem;color:var(--muted);}
+.af-author strong{color:var(--text);}
+.af-link{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--purple);border-bottom:1px solid transparent;transition:border-color 0.2s;}
+.af-link:hover{border-color:var(--purple);}
+
+@media(max-width:640px){
+  .article{padding:2rem 1.3rem 4rem;}
+  .metrics{grid-template-columns:repeat(2,1fr);}
+  .fig-duo{grid-template-columns:1fr;}
+  .meta-bar{gap:0.8rem;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="back-link" href="index.html">返回主页</a>
+    <span class="nav-meta">技术实践 · 2026</span>
+  </div>
+</nav>
+
+<!-- COVER with graph image -->
+<div class="cover">
+  <img class="cover-graph" src="graph-view-1.jpg" alt="Obsidian Graph View">
+  <div style="position:absolute;inset:0;max-width:800px;margin:0 auto;display:flex;align-items:flex-end;padding:2.5rem 2rem;">
+    <div>
+      <div class="cover-kicker">工作流实践 · 知识管理 · AI 原生</div>
+      <h1 class="cover-title">知识网络 × AI 代理：<br>用 Obsidian + Claude 构建可生长的第二大脑</h1>
+      <p class="cover-subtitle">一个软件工程硕士生如何在 10 个月内并行完成 6 门课程与 5 个大项目，并将分散的多工具笔记体系整合为可持续运转的 AI 增强知识管理系统</p>
+    </div>
+  </div>
+</div>
+
+<article class="article">
+
+  <div class="meta-bar">
+    <div class="meta-pill">作者 <span>王珠峰 · Zhufeng Wang</span></div>
+    <div class="meta-pill">发布 <span>2026年6月</span></div>
+    <div class="meta-pill">阅读时间 <span>约 15 分钟</span></div>
+    <div class="meta-pill">类型 <span>技术实践 · 经验总结</span></div>
+  </div>
+
+  <!-- ABSTRACT -->
+  <div class="abstract">
+    <div class="abstract-head">摘要 / Abstract</div>
+    <p>本文记录了作者在悉尼科技大学硕士学习期间，构建 AI 增强型个人知识管理系统的完整实践过程。核心方案是以 <strong>Obsidian 双向链接图谱</strong>作为知识存储与组织层，以 <strong>Claude 大语言模型</strong>作为知识处理与提炼代理，形成「捕获 → AI提炼 → 图谱归档 → 网络化复用」的四阶段闭环。系统在 10 个月内积累了 <strong>800+ 知识节点</strong>，支撑了 6 门全英文课程与 5 个跨领域项目的同步推进，显著降低了重复调研成本，并使历史知识在新项目中得到系统性复用。文章详细记录了 Vault 架构设计、Graph View 网络分析、Claude Prompt 工程、迁移工程问题与解决方案，以及具体的项目应用案例。</p>
+    <div class="kw-row">
+      <span class="kw">个人知识管理</span>
+      <span class="kw">双向链接</span>
+      <span class="kw">Graph View</span>
+      <span class="kw">大语言模型代理</span>
+      <span class="kw">Prompt 工程</span>
+      <span class="kw">Obsidian</span>
+      <span class="kw">知识图谱</span>
+      <span class="kw">AI 原生工作流</span>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-head">目录</div>
+    <ol>
+      <li><a href="#s1">问题背景：为什么信息越多越难找</a></li>
+      <li><a href="#s2">系统架构：Obsidian 作为知识图谱基础设施</a></li>
+      <li><a href="#s3">Graph View 脑图：知识网络的可视化与分析</a></li>
+      <li><a href="#s4">Claude 作为知识处理代理：Prompt 工程实践</a></li>
+      <li><a href="#s5">迁移工程：从四工具混沌到单一知识库</a></li>
+      <li><a href="#s6">项目应用案例：三个真实场景的深度记录</a></li>
+      <li><a href="#s7">系统评估：有效性与局限性</a></li>
+      <li><a href="#s8">下一步：RAG 接入与知识库智能化</a></li>
+    </ol>
+  </div>
+
+  <!-- S1 -->
+  <h2 class="s-title" id="s1">1 · 问题背景：为什么信息越多越难找</h2>
+
+  <p class="prose">2025年5月，我从中国到悉尼开始软件系统工程硕士学习。此后 10 个月里，我同时处理以下认知负荷：一个贯穿全年的毕业设计项目（UGMAS 煤矿监测系统，基于两篇学术论文的 TCA/FSV 框架）、五门课程作业（.NET 应用开发、云计算 AWS、企业架构 Salesforce、UNIX 系统编程、风险管理）、以及求职准备。</p>
+
+  <p class="prose">多线并行本身不是问题。真正的问题是：<strong>信息存在四个互不相通的容器里</strong>——课程笔记在 Craft，临时想法在 Apple Notes，项目文档在 Notion，技术摘抄散落在桌面。每次开始新任务，第一件事是花 15–20 分钟回忆「那个内容记在哪里」。</p>
+
+  <div class="callout callout-amber">
+    <div class="callout-head ch-a">核心矛盾</div>
+    <p>信息管理领域有一个著名悖论：<strong>笔记越多，找到所需内容反而越难</strong>。这是因为传统的文件夹-文档组织模式是「存储优先」而非「检索优先」的——你在记录时按主题分类，但检索时需要跨主题联想。两者的认知模式根本不同。Forte（2022）将此称为「数字囤积」问题：大量保存但从不复用。</p>
+  </div>
+
+  <p class="prose">PKM（Personal Knowledge Management）领域对此有系统性研究。Zettelkasten 方法（Ahrens, 2017）提出以「原子化笔记 + 双向链接」代替层级文件夹，使笔记网络能够反映真实的思维联系而非人为的分类边界。Obsidian 是目前对这套理念落地最完整的工具，其 Graph View 功能使知识网络的拓扑结构可视化，为知识管理提供了结构化的反思界面。</p>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-n">10<span style="font-size:1rem;">月</span></div><div class="metric-l">系统运行周期</div></div>
+    <div class="metric"><div class="metric-n">800+</div><div class="metric-l">知识节点数量</div></div>
+    <div class="metric"><div class="metric-n">6+5</div><div class="metric-l">课程+项目并行</div></div>
+    <div class="metric"><div class="metric-n">14<span style="font-size:1rem;">年</span></div><div class="metric-l">持续记录习惯</div></div>
+  </div>
+
+  <p class="prose">值得注意的是，本系统能够落地的一个重要前提是：笔者有<strong>持续 14 年的每日记录习惯</strong>，横跨手写日记、各类数字工具。这意味着记录行为本身不是障碍，障碍在于如何让历史记录形成网络并被系统性复用。</p>
+
+  <hr>
+
+  <!-- S2 -->
+  <h2 class="s-title" id="s2">2 · 系统架构：Obsidian 作为知识图谱基础设施</h2>
+
+  <h3 class="ss-title">2.1 设计原则</h3>
+  <p class="prose">Vault「Everest」的设计遵循三个原则：</p>
+  <p class="prose"><strong>领域优先而非类型优先。</strong>文件夹按生活领域（UTS / 工作 / 个人 / 财务）而非信息类型（笔记 / 资料 / 任务）组织。理由是：检索时脑子里浮现的是「那个 AWS 的内容」而不是「那是笔记还是资料」。</p>
+  <p class="prose"><strong>MOC 而非完全扁平。</strong>每个领域顶层设一个 <code>！Index.md</code>（Map of Content），用双向链接维护该领域的知识地图。MOC 不需要手动维护所有条目，可以用 Dataview 自动查询。MOC 节点因连接密度高，在 Graph View 中自然成为枢纽。</p>
+  <p class="prose"><strong>Inbox 缓冲层。</strong>所有新内容先进 <code>📥 Inbox</code>，定期整理归档。这消除了「该放哪里」的决策摩擦，使捕获动作接近零成本。</p>
+
+  <h3 class="ss-title">2.2 Vault 结构</h3>
+  <div class="vault-tree">
+<span class="vt-f">📦 Everest/</span>
+<span class="vt-n">├── <span class="vt-f">📥 Inbox/</span>              <span class="vt-c">← 新内容缓冲区，定期整理</span></span>
+<span class="vt-n">├── <span class="vt-f">🎓 UTS/</span></span>
+<span class="vt-n">│   ├── <span class="vt-m">！Index.md</span>           <span class="vt-c">← MOC 枢纽，所有课程入口</span></span>
+<span class="vt-n">│   ├── <span class="vt-f">Semester 1/</span></span>
+<span class="vt-n">│   │   ├── 42003 UGMAS/      <span class="vt-c">← 毕业设计，节点最密集</span></span>
+<span class="vt-n">│   │   ├── 32998 .NET/</span>
+<span class="vt-n">│   │   └── 42904 Cloud/</span>
+<span class="vt-n">│   └── <span class="vt-f">Semester 2/</span></span>
+<span class="vt-n">├── <span class="vt-f">💼 JOB/</span>                  <span class="vt-c">← 公司研究、面试题库、简历迭代</span></span>
+<span class="vt-n">├── <span class="vt-f">💻 Tech/</span>                 <span class="vt-c">← 技术摘录，双链密度最高</span></span>
+<span class="vt-n">├── <span class="vt-f">👤 Personal/</span></span>
+<span class="vt-n">├── <span class="vt-f">💰 Money/</span></span>
+<span class="vt-n">├── <span class="vt-f">✈️ Travelling/</span></span>
+<span class="vt-n">└── <span class="vt-f">📅 Daily/</span>               <span class="vt-c">← YYYY-MM-DD.md 日记，链接当日相关笔记</span></span>
+  </div>
+
+  <h3 class="ss-title">2.3 双向链接的信息论意义</h3>
+  <p class="prose">普通文档的链接是单向的：A 提到 B，但 B 不知道被 A 提到。Obsidian 的双向链接使每个笔记都能看到「谁链接了我」，这在信息论上的意义是：<strong>一个笔记的被引用数近似于它在知识网络中的中心性</strong>。高中心性的笔记（如 <code>[[TCA 算法原理]]</code> 被 12 篇笔记链接）在 Graph View 中节点更大，视觉上立刻突出。</p>
+
+  <p class="prose">这与 Luhmann（1992）的 Zettelkasten 原理一致：知识的价值不在于单条笔记的质量，而在于笔记之间连接形成的语义网络密度。当网络足够大时，新笔记的归档本身就是一次「新知识与已有认知框架的冲突与协调」过程。</p>
+
+  <hr>
+
+  <!-- S3 -->
+  <h2 class="s-title" id="s3">3 · Graph View 脑图：知识网络的可视化与分析</h2>
+
+  <p class="prose">Graph View 是 Obsidian 的核心差异化功能，将所有笔记及其双向链接渲染为力导向图（Force-Directed Graph）。下图为 Everest Vault 在约 10 个月后的实际状态：</p>
+
+  <div class="fig-duo">
+    <div class="fig-duo-card">
+      <img src="graph-view-1.jpg" alt="全局知识网络">
+      <div class="fig-duo-label">
+        <strong>图1：全局知识网络</strong>
+        800+ 节点，多枢纽中心结构，外围散点为待链接的孤立笔记
+      </div>
+    </div>
+    <div class="fig-duo-card">
+      <img src="graph-view-2.jpg" alt="#知识 标签聚焦">
+      <div class="fig-duo-label">
+        <strong>图2：#知识 标签聚焦视图</strong>
+        单标签节点辐射 50+ 连线，展示跨领域概念的高聚合密度
+      </div>
+    </div>
+  </div>
+
+  <h3 class="ss-title">3.1 图谱结构分析</h3>
+  <p class="prose">从图1可以观察到几个典型的网络拓扑特征：</p>
+  <p class="prose"><strong>多枢纽-辐射结构（Hub-and-Spoke）。</strong>图中存在 5–6 个高连接密度的大节点（黄色），对应各领域的 MOC 索引文件。这是预期结构，说明 MOC 设计有效——它们成为跨领域导航的入口。</p>
+  <p class="prose"><strong>外围孤立节点群。</strong>图1外圈有大量点状聚集的孤立节点（蓝色小点），这是迁移过来但尚未建立双链的历史笔记。它们在图谱中可见但处于「死角」，是待处理的技术债。</p>
+  <p class="prose"><strong>#知识 标签的超级枢纽效应。</strong>图2中 <code>#知识</code> 标签节点辐射出约 50 条连线，远超其他标签。这说明它被过度使用——在实践中发现，过于宽泛的标签会失去分类价值，需要进一步细分为 <code>#知识/技术</code>、<code>#知识/方法论</code> 等子标签。</p>
+
+  <div class="callout callout-green">
+    <div class="callout-head ch-g">Graph View 的实践价值</div>
+    <p>Graph View 不只是「好看」。它的核心价值是提供了一个<strong>知识健康度的视觉指标</strong>：孤立节点过多说明迁移工作待完成；某个领域连接过密说明该领域笔记质量高；两个领域之间没有连接说明它们在你的认知中还是孤立的。这是传统文件夹系统完全无法提供的元认知信息。</p>
+  </div>
+
+  <h3 class="ss-title">3.2 使用 Dataview 自动化 MOC 维护</h3>
+  <p class="prose">手动维护 MOC 链接会随笔记增多变得沉重。Dataview 插件支持用 SQL 语法自动生成动态列表，使 MOC 自我更新：</p>
+
+  <div class="codeblock">
+    <div class="cb-head"><div class="cb-dot"></div>UTS/！Index.md · Dataview 自动 MOC 示例</div>
+    <div class="cb-pre"><span class="c">## 本学期所有项目笔记（自动更新）</span>
+
+<span class="s">```dataview
+TABLE file.mtime AS "最后修改", length(file.inlinks) AS "被引用数"
+FROM "UTS" AND #project
+SORT length(file.inlinks) DESC
+LIMIT 10
+```</span>
+
+<span class="c">## 本周新增笔记</span>
+
+<span class="s">```dataview
+LIST
+FROM "UTS"
+WHERE file.mtime >= date(today) - dur(7 days)
+SORT file.mtime DESC
+```</span></div>
+  </div>
+
+  <hr>
+
+  <!-- S4 -->
+  <h2 class="s-title" id="s4">4 · Claude 作为知识处理代理：Prompt 工程实践</h2>
+
+  <p class="prose">Obsidian 解决「存储和检索」问题，但它不能解决「原始内容 → 结构化知识」的转化问题。这是认知负荷最高的环节——面对一篇 30 页的学术论文，如何快速提炼出对自己有用的核心？如何在不失去细节的前提下生成可用的 Markdown 笔记？</p>
+  <p class="prose">这正是 Claude 嵌入工作流的位置。<strong>Claude 不是替我思考，而是加速「原始输入 → 可用格式」的转化过程，把我的精力释放到判断和连接上</strong>。</p>
+
+  <h3 class="ss-title">4.1 工作流四阶段</h3>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="fs-left"><div class="fs-circle">📥</div><div class="fs-line"></div></div>
+      <div class="fs-body">
+        <div class="fs-name">捕获 — 零摩擦原始记录</div>
+        <div class="fs-desc">碎片想法、会议内容、论文摘录先进 <strong>Apple Notes</strong>（iOS 设备随时可用，Siri 语音转文字进一步降低摩擦）。此阶段不做任何整理，只做记录。</div>
+        <div class="fs-tag">工具：Apple Notes · Siri 语音输入</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-left"><div class="fs-circle">🤖</div><div class="fs-line"></div></div>
+      <div class="fs-body">
+        <div class="fs-name">处理 — Claude 代理提炼</div>
+        <div class="fs-desc">将原始内容粘贴给 Claude，使用标准化 Prompt 模板提炼结构、生成 Markdown 草稿、标注应建立独立笔记的术语。<strong>关键原则：由我判断筛选，Claude 加速转化，不替代决策。</strong></div>
+        <div class="fs-tag">工具：Claude · 定制 Prompt 模板（见 4.2 节）</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-left"><div class="fs-circle">🔗</div><div class="fs-line"></div></div>
+      <div class="fs-body">
+        <div class="fs-name">归档 — Obsidian 双链组织</div>
+        <div class="fs-desc">将 Claude 输出的笔记草稿归入对应 Vault 节点，<strong>手动补充 [[双向链接]]</strong> 连接到相关笔记。这个手动环节是刻意保留的——建立链接的过程是主动思考两个笔记关系的过程，不能外包给 AI。</div>
+        <div class="fs-tag">工具：Obsidian · Graph View 验证连接密度</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-left"><div class="fs-circle">♻️</div></div>
+      <div class="fs-body">
+        <div class="fs-name">复用 — 历史知识服务新任务</div>
+        <div class="fs-desc">新任务启动时<strong>先搜 Obsidian，再搜互联网</strong>。如果相关笔记存在，从那里出发可以节省大量重复调研时间，并保持决策与历史判断的一致性。</div>
+        <div class="fs-tag">工具：Obsidian 全文搜索 · Dataview 查询</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="ss-title">4.2 核心 Prompt 模板</h3>
+  <p class="prose">以下是在实践中迭代稳定的三个 Prompt 模板，覆盖了工作流中最高频的三个场景：</p>
+
+  <div class="codeblock">
+    <div class="cb-head"><div class="cb-dot"></div>Prompt 模板 01 · 原始笔记 → 结构化 Markdown</div>
+    <div class="cb-pre"><span class="s">以下是我的原始笔记，内容比较零散：
+
+[粘贴原始内容]
+
+请帮我完成以下工作：
+1. 提炼出 3-5 个核心概念，每个用一句话解释
+2. 整理成 Obsidian Markdown 格式，用 ## 分层
+3. 在合适的地方用 [[概念名]] 格式标注应建立独立笔记的术语
+4. 最后列出 2-3 个「待深入」的问题，写成 TODO 格式
+
+约束：
+- 不添加我原始笔记里没有的观点，只做结构化整理
+- 保持中文，技术术语保留英文原文
+- 控制在 500 字以内</span></div>
+  </div>
+
+  <div class="codeblock">
+    <div class="cb-head"><div class="cb-dot"></div>Prompt 模板 02 · 论文快速精读（用于学术文献）</div>
+    <div class="cb-pre"><span class="s">我需要在 45 分钟内理解以下论文的核心贡献，以便在我的项目中使用其方法：
+
+论文标题：[标题]
+研究背景：[我的项目背景]
+
+请按以下结构输出：
+1. 核心问题（一句话）
+2. 提出的方法/框架（要素+原理，不超过 200 字）
+3. 关键公式或算法步骤（如有，用代码块格式）
+4. 实验结果的核心数字（我需要哪些数字作为对标基准）
+5. 对我项目的直接可用部分
+6. 我需要注意的假设前提（哪些条件下方法会失效）
+
+格式：直接输出，不要过渡句，每节用 ## 开头</span></div>
+  </div>
+
+  <div class="codeblock">
+    <div class="cb-head"><div class="cb-dot"></div>Prompt 模板 03 · 技术选型决策辅助</div>
+    <div class="cb-pre"><span class="s">我在做 [项目名称]，需要在以下方案之间做选择：
+
+方案 A：[具体描述]
+方案 B：[具体描述]
+
+我的具体约束：
+- 时间：[可用时间]
+- 技术栈：[现有技术]
+- 主要评估维度：[列出 2-3 个]
+
+请帮我分析两个方案的权衡，不需要给出「推荐」结论。
+我需要理解权衡本身来做自己的决策。
+
+输出格式：对比表格 + 每个方案的核心适用场景</span></div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-head ch-p">关键原则</div>
+    <p>Claude 输出的内容<strong>必须经过判断再进 Obsidian，不能直接粘贴</strong>。最有效的方式是：阅读 Claude 输出后，用自己的话重写关键部分，再加上 <code>[[双向链接]]</code>。这个重写过程是真正的学习发生的地方。如果跳过这一步，笔记里储存的是「Claude 的理解」而非「我的理解」，在需要快速调用时会发现无法直接使用。</p>
+  </div>
+
+  <hr>
+
+  <!-- S5 -->
+  <h2 class="s-title" id="s5">5 · 迁移工程：从四工具混沌到单一知识库</h2>
+
+  <p class="prose">从 Craft + Notion + Apple Notes + 桌面文件到统一的 Obsidian Vault，这个迁移过程遇到了若干可重复的工程问题。记录于此以减少他人的重复踩坑。</p>
+
+  <div class="ps-list">
+    <div class="ps-item">
+      <div class="ps-q">Craft 导出 Markdown 后图片全部断链，<code>![](image.png)</code> 路径无效</div>
+      <div class="ps-a"><strong>不要单独移动 .md 文件</strong>。Craft 导出时 <code>.md</code> 与 <code>.assets</code> 文件夹在同目录，保持该相对路径关系直接作为 Vault 打开，图片自动恢复。若已分离，用 <strong>Consistent Attachments and Links</strong> 插件批量修复。</div>
+    </div>
+    <div class="ps-item">
+      <div class="ps-q">侧边栏被大量 <code>.assets</code> 文件夹污染，导航效率极低</div>
+      <div class="ps-a">安装 <strong>Hidden Folder 插件</strong>，配置 <code>*.assets</code> 模式，一键隐藏所有资源文件夹。同理可隐藏 <code>.obsidian</code> 等系统目录。</div>
+    </div>
+    <div class="ps-item">
+      <div class="ps-q">文件全部平铺时，侧边栏滚动出现 Electron 渲染残影和黑块</div>
+      <div class="ps-a">两步解决：① 设置 → 外观 → 关闭硬件加速；② <strong>整理文件夹结构</strong>（根本解法）——平铺文件节点过多是导致渲染压力的真正原因。</div>
+    </div>
+    <div class="ps-item">
+      <div class="ps-q">编辑区两侧留白过多，笔记宽度不足，长文写作体验差</div>
+      <div class="ps-a">安装 <strong>Minimal 主题 + Minimal Theme Settings 插件</strong>，Editor Width 设置为 <code>Wide</code> 或 <code>Max</code>，内容铺满编辑区。</div>
+    </div>
+    <div class="ps-item">
+      <div class="ps-q">换 Vault 后已安装插件全部消失，需要重新配置</div>
+      <div class="ps-a">每个 Vault 的 <code>.obsidian/</code> 文件夹独立存储插件和设置。<strong>快速迁移方法</strong>：将旧 Vault 的 <code>.obsidian/</code> 文件夹复制到新 Vault 根目录，重启 Obsidian 即可恢复全部配置。</div>
+    </div>
+  </div>
+
+  <h3 class="ss-title">5.1 推荐插件清单（最小化原则）</h3>
+  <p class="prose">遵循「每个插件必须解决一个明确的真实问题」原则，当前只用以下四个：</p>
+
+  <table class="art-table">
+    <thead><tr><th>插件</th><th>解决的具体问题</th><th>核心配置</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Hidden Folder</strong></td><td>隐藏 .assets 等污染侧边栏的系统目录</td><td>添加 <code>*.assets</code> 规则</td></tr>
+      <tr><td><strong>Minimal Theme Settings</strong></td><td>编辑区宽度和字体优化</td><td>Editor Width → Wide/Max</td></tr>
+      <tr><td><strong>Dataview</strong></td><td>自动生成动态文件列表，替代手动维护 MOC</td><td>启用 JavaScript 查询</td></tr>
+      <tr><td><strong>Consistent Attachments</strong></td><td>批量修复从 Craft/Notion 迁移的断链图片</td><td>一次性修复后可卸载</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <!-- S6 -->
+  <h2 class="s-title" id="s6">6 · 项目应用案例：三个真实场景的深度记录</h2>
+
+  <h3 class="ss-title">案例 A：UGMAS 毕业设计（最复杂案例）</h3>
+  <p class="prose">UGMAS 是一个持续 12 个月、基于两篇 Q1 期刊论文的毕业设计。知识管理路径如下：用 Prompt 模板 02 精读 Wu et al.（2021）和 Wu et al.（2023），输出 <code>TCA 算法原理.md</code> 和 <code>FSV 稳定性验证.md</code>，两者在 Graph View 中成为 42003 文件夹内连接密度最高的节点。每次实现遇到问题，先搜索这两个文件，大部分问题能在里面找到线索。</p>
+  <p class="prose">三版迭代的每一次「为什么这样改」都记录在 <code>UGMAS 迭代日志.md</code> 中，最终报告写作时直接从笔记提取论据，<strong>报告写作时间比预估缩短约 40%</strong>。</p>
+
+  <h3 class="ss-title">案例 B：RAG 系统技术选型</h3>
+  <p class="prose">构建多模态 RAG 系统时，面临三个关键选择：向量数据库（Chroma vs Pinecone vs Qdrant）、检索策略（纯向量 vs BM25 混合）、Rerank 方案（Cross-encoder 类型）。用 Prompt 模板 03 对每个选项做了对比分析，输出统一归入 <code>RAG 技术选型对比.md</code>。</p>
+  <p class="prose">这篇笔记在整个项目周期内被打开了 <strong>30+ 次</strong>，帮助在实现过程中保持决策一致性。最终选择的 Chroma + BM25 混合方案，其核心论据直接来源于这篇笔记而非重新调研。</p>
+
+  <h3 class="ss-title">案例 C：求职准备的知识管理</h3>
+  <p class="prose"><code>💼 JOB/</code> 文件夹下维护了一个「公司研究」目录，每家感兴趣的公司对应一个笔记，包含：业务方向摘要、技术栈偏好（从 JD 提取）、与个人技能的匹配分析、面试准备行动项。用 Claude 分析招聘 JD 的关键词频率和能力要求，补全了和目标岗位的技能差距图。这些笔记最终反哺了简历的三次迭代。</p>
+
+  <hr>
+
+  <!-- S7 -->
+  <h2 class="s-title" id="s7">7 · 系统评估：有效性与局限性</h2>
+
+  <h3 class="ss-title">7.1 有效的方面</h3>
+  <p class="prose"><strong>消除信息孤岛，使跨域连接可见。</strong>最明显的收益是：不再需要记住「那个东西在哪个工具里」。Graph View 使不同课程之间的概念重叠变得可见——当 TCA 的力导向图和 D3.js 力导向图这两个概念通过 <code>[[力导向图算法]]</code> 节点连接时，意识到两者有共同的底层原理，这种连接在分散工具里根本不可能被发现。</p>
+  <p class="prose"><strong>减少重复调研，保持决策一致性。</strong>以 RAG 项目为例，技术选型笔记在整个项目期间被复用 30+ 次。如果没有这个系统，每次遇到选型相关问题都需要重新搜索和判断。</p>
+
+  <h3 class="ss-title">7.2 局限性与未解决的问题</h3>
+  <p class="prose"><strong>笔记质量在时间压力下下降明显。</strong>高负荷时期写的笔记结构混乱，事后回看需要重新理解。这不是工具问题，而是「记录」和「深度思考」在时间压力下难以兼顾的现实矛盾。Claude 提炼有帮助，但无法完全弥补原始内容质量不足。</p>
+  <p class="prose"><strong>外围孤立节点是持续的技术债。</strong>迁移过来但未建立双链的历史笔记数量庞大（图1中可见），整理这些孤立节点需要大量时间，目前只能逐步消化。</p>
+  <p class="prose"><strong>Graph View 在超过 1000 节点后渲染性能下降。</strong>随着 Vault 增长，Graph View 的加载时间会增加，需要定期通过过滤器限制显示范围。</p>
+
+  <hr>
+
+  <!-- S8 -->
+  <h2 class="s-title" id="s8">8 · 下一步：RAG 接入与知识库智能化</h2>
+
+  <p class="prose">目前工作流中 Claude 的角色是「被动代理」——我需要主动把内容粘贴给它，它才能处理。下一个里程碑是将整个 Obsidian Vault 接入 RAG 系统，实现<strong>直接问答自己的笔记</strong>。</p>
+
+  <div class="callout callout-green">
+    <div class="callout-head ch-g">规划中的 RAG 接入方案</div>
+    <p><strong>索引：</strong>将 Vault 中所有 .md 文件解析为 chunks，嵌入向量数据库（Chroma）。<code>[[双向链接]]</code> 作为元数据保留，在检索时用于扩展上下文——当检索到笔记 A 时，自动加载 A 链接的笔记 B 和 C 作为补充上下文，这是 Obsidian 知识库相对于普通文档集合的独特优势。<br><br><strong>检索：</strong>BM25 + 稠密向量混合检索，与我在 RAG 项目中验证的方案相同（Hit@3 = 0.87）。<br><br><strong>接口：</strong>本地部署，不上传原始笔记到第三方服务，保护隐私敏感内容。</p>
+  </div>
+
+  <p class="prose">这个方向代表了 PKM 工具演进的一个关键趋势：从「被动存储」到「主动智能」。Obsidian 的纯文本 + 双向链接架构，是目前最适合 RAG 接入的笔记格式——Markdown 解析成本低，双向链接提供了天然的图结构，可以用图遍历算法扩展检索上下文。</p>
+
+  <hr>
+
+  <!-- REFERENCES -->
+  <div class="refs">
+    <div class="refs-head">参考文献 / References</div>
+    <div class="ref-item">Ahrens, S. (2017). <em>How to Take Smart Notes: One Simple Technique to Boost Writing, Learning and Thinking.</em> CreateSpace.</div>
+    <div class="ref-item">Forte, T. (2022). <em>Building a Second Brain: A Proven Method to Organize Your Digital Life and Unlock Your Creative Potential.</em> Atria Books.</div>
+    <div class="ref-item">Luhmann, N. (1992). Communicating with slip boxes. In A. Kieserling (Ed.), <em>Universität als Milieu</em> (pp. 53–61). Haux.</div>
+    <div class="ref-item">Wu, R. M. X. et al. (2021). A correlational research on developing an innovative integrated gas warning system: A case study in ZhongXing, China. <em>Geomatics, Natural Hazards and Risk</em>, 12(1), 3175–3204.</div>
+    <div class="ref-item">Wu, R. M. X. et al. (2023). An FSV analysis approach to verify the robustness of the triple-correlation analysis theoretical framework. <em>Scientific Reports</em>, 13, 9621.</div>
+  </div>
+
+  <div class="art-footer">
+    <div class="af-author">
+      <strong>王珠峰 · Zhufeng Wang</strong><br>
+      <span style="font-size:0.78rem;color:var(--faint);">UTS 软件系统工程 硕士 2026届 · wang.zhufeng@outlook.com</span>
+    </div>
+    <a class="af-link" href="index.html">← 返回主页</a>
+  </div>
+
+</article>
+
+</body>
+</html>
