@@ -293,6 +293,44 @@ nav{
 .ach-text{font-size:0.84rem;color:var(--muted);line-height:1.6;font-weight:300;}
 .ach-text strong{color:var(--text);font-weight:500;display:block;margin-bottom:0.2rem;}
 
+/* OBSIDIAN SECTION */
+.obsidian-section{
+  max-width:1080px;margin:0 auto;
+  padding:4.5rem 2.5rem;
+  border-bottom:1px solid var(--border);
+}
+.obs-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:4rem;align-items:start;}
+.obs-desc{font-size:0.9rem;color:var(--muted);line-height:1.9;font-weight:300;}
+.obs-desc strong{color:var(--text);font-weight:500;}
+.obs-desc p{margin-bottom:1.1rem;}
+.obs-desc p:last-child{margin-bottom:0;}
+.obs-vault{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.ov-topbar{background:var(--bg3);border-bottom:1px solid var(--border);padding:9px 14px;display:flex;align-items:center;gap:8px;}
+.ov-dot{width:9px;height:9px;border-radius:50%;}
+.ov-title{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--faint);margin-left:4px;letter-spacing:0.04em;}
+.ov-body{display:grid;grid-template-columns:160px 1fr;}
+.ov-sidebar{padding:12px 0;border-right:1px solid var(--border);}
+.ov-folder{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--faint);padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:color 0.15s;}
+.ov-folder:hover{color:var(--text);}
+.ov-folder.active{color:var(--purple);background:rgba(167,139,250,0.06);}
+.ov-folder-icon{font-size:0.75rem;}
+.ov-note{font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:var(--faint);padding:3px 12px 3px 24px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ov-note:hover{color:var(--text);}
+.ov-note.active{color:var(--purple);}
+.ov-content{padding:14px;min-height:200px;}
+.ov-note-title{font-family:'Noto Serif SC',serif;font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:8px;}
+.ov-tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;}
+.ov-tag{font-family:'IBM Plex Mono',monospace;font-size:0.58rem;padding:2px 7px;border-radius:2px;background:rgba(167,139,250,0.1);color:var(--purple);border:1px solid rgba(167,139,250,0.2);}
+.ov-md{font-size:0.78rem;color:var(--muted);line-height:1.7;}
+.ov-md strong{color:var(--text);font-weight:500;}
+.ov-md code{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:2px;color:var(--green);}
+.obs-workflow{margin-top:2rem;display:flex;flex-direction:column;gap:0.6rem;}
+.wf-step{display:flex;gap:1rem;align-items:flex-start;padding:0.8rem;background:var(--bg2);border:1px solid var(--border);border-radius:6px;}
+.wf-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+.wf-step-body{}
+.wf-step-name{font-size:0.86rem;font-weight:500;color:var(--text);margin-bottom:0.2rem;}
+.wf-step-desc{font-size:0.78rem;color:var(--muted);font-weight:300;line-height:1.5;}
+
 /* CONTACT */
 .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;}
 .ct-block{margin-bottom:1.5rem;}
@@ -351,6 +389,7 @@ footer{
       <li><a href="#projects">项目</a></li>
       <li><a href="#skills">技能</a></li>
       <li><a href="#about">关于</a></li>
+      <li><a href="#obsidian">第二大脑</a></li>
       <li><a href="#contact">联系</a></li>
     </ul>
     <div class="nav-badge"><div class="badge-dot"></div>求职中 · 2026届</div>
@@ -560,6 +599,98 @@ footer{
           </div>
         </li>
       </ul>
+    </div>
+  </div>
+</div>
+
+<div class="obsidian-section" id="obsidian">
+  <div class="sec-header">
+    <h2 class="sec-title">第二大脑</h2>
+    <span class="sec-sub">Obsidian × AI Workflow</span>
+    <div class="sec-line"></div>
+  </div>
+  <div class="obs-grid">
+    <div>
+      <div class="obs-desc">
+        <p>深度使用 <strong>Obsidian</strong> 构建个人知识库（Vault：Everest），以双向链接和 Dataview 查询组织学习笔记、项目文档、技术积累与职业规划，形成可持续生长的知识网络。</p>
+        <p>与 <strong>Claude / ChatGPT</strong> 深度结合——将复杂问题拆解为 Prompt，输出直接归档至对应笔记节点；项目调研、论文精读、代码架构分析均在 Obsidian 内闭环，实现「思考即记录、记录即索引」。</p>
+        <p>这套工作流在过去一年的 UTS 课程中经过完整验证：<strong>6门课程的资料整理、5个大项目的架构笔记、RAG 项目的技术选型对比</strong>，全部沉淀在同一个 Vault 中，可随时检索和复用。</p>
+      </div>
+      <div class="obs-workflow">
+        <div class="wf-step">
+          <div class="wf-icon">📥</div>
+          <div class="wf-step-body">
+            <div class="wf-step-name">捕获 — Apple Notes 快速记录</div>
+            <div class="wf-step-desc">碎片想法 / 会议记录 / 临时摘抄先进 Apple Notes，保持零摩擦</div>
+          </div>
+        </div>
+        <div class="wf-step">
+          <div class="wf-icon">🧠</div>
+          <div class="wf-step-body">
+            <div class="wf-step-name">处理 — Claude 辅助提炼结构</div>
+            <div class="wf-step-desc">用 Claude 将原始内容转化为结构化笔记，提取关键概念和行动项</div>
+          </div>
+        </div>
+        <div class="wf-step">
+          <div class="wf-icon">🔗</div>
+          <div class="wf-step-body">
+            <div class="wf-step-name">归档 — Obsidian 双链组织</div>
+            <div class="wf-step-desc">归入 Vault 对应节点，建立与已有知识的双向链接，Dataview 自动聚合</div>
+          </div>
+        </div>
+        <div class="wf-step">
+          <div class="wf-icon">♻️</div>
+          <div class="wf-step-body">
+            <div class="wf-step-name">复用 — 项目交付时直接调取</div>
+            <div class="wf-step-desc">新项目启动时检索已有笔记，避免重复调研，缩短从思考到输出的路径</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="obs-vault">
+        <div class="ov-topbar">
+          <div class="ov-dot" style="background:#f87171;opacity:0.7;"></div>
+          <div class="ov-dot" style="background:#f0a940;opacity:0.7;"></div>
+          <div class="ov-dot" style="background:#3ecf8e;opacity:0.7;"></div>
+          <div class="ov-title">Obsidian · Everest Vault</div>
+        </div>
+        <div class="ov-body">
+          <div class="ov-sidebar">
+            <div class="ov-folder active"><span class="ov-folder-icon">📂</span>Projects</div>
+            <div class="ov-note active">UGMAS 架构笔记</div>
+            <div class="ov-note">RAG 技术选型</div>
+            <div class="ov-note">FreshBasket AWS</div>
+            <div class="ov-folder"><span class="ov-folder-icon">📂</span>Learning</div>
+            <div class="ov-note">云计算概念图</div>
+            <div class="ov-note">LangChain 源码</div>
+            <div class="ov-folder"><span class="ov-folder-icon">📂</span>Career</div>
+            <div class="ov-note">秋招公司研究</div>
+            <div class="ov-note">面试题库</div>
+            <div class="ov-folder"><span class="ov-folder-icon">📂</span>Daily</div>
+            <div class="ov-note">2026-06-06</div>
+          </div>
+          <div class="ov-content">
+            <div class="ov-note-title">UGMAS 系统架构设计笔记</div>
+            <div class="ov-tag-row">
+              <span class="ov-tag">#project</span>
+              <span class="ov-tag">#visualization</span>
+              <span class="ov-tag">#TCA</span>
+              <span class="ov-tag">#Vue3</span>
+            </div>
+            <div class="ov-md">
+              <strong>核心问题</strong>：TCA 矩阵输出认知不透明，操作人员无法快速定位根因。<br><br>
+              <strong>设计决策</strong>：DMVN 直接外化拓扑 → 传感器=节点，相关性=边宽/颜色<br><br>
+              <strong>链接</strong>：[[D3.js 力导向图]] · [[FSV 稳定性验证]] · [[Vue3 响应式原理]]<br><br>
+              <code>r_{ijk} = geomean(|r_ij|, |r_jk|, |r_ik|)</code><br><br>
+              <strong>待办</strong><br>
+              - [x] 矿井地图空间锚定<br>
+              - [x] 气泡墙面板<br>
+              - [ ] MQTT 实时流接入
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
